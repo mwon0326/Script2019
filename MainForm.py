@@ -1,66 +1,124 @@
 # -*- coding: utf-8 -*-
+# 실행 전 같이 저장된 폰트들을 설치해주세요!!
+
 from tkinter import *
 import tkinter.font
 import json
 import tkinter.ttk
 import openAPIconnect
+import tkinter.messagebox
 
 FONT = "스웨거 TTF"
 
-class MainForm:
-    def __init__(self):
-        self.window = Tk()
-        self.window.title("전국 응급 기관 정보 조회 서비스")
-        self.window.geometry("600x400+100+100")
-        self.window.resizable(False, False)
-        self.window.configure(background='white')
+window = Tk()
+window.title("전국 응급 기관 정보 조회 서비스")
+window.geometry("600x400+100+100")
+window.resizable(False, False)
+window.configure(background='white')
 
-        x, y = 110, 220
-        self.font = tkinter.font.Font(family=FONT, size=18)
-        self.f = (FONT, '18')
-        json_data = open("listBox.json", "r", encoding='UTF8').read()
-        self.data = json.loads(json_data)
+FONT= '스웨거 TTF'
+font = tkinter.font.Font(family=FONT, size=18)
+info_font = tkinter.font.Font(family='KBIZ한마음명조 R', size=12)
+image = PhotoImage(file="logo.png")
 
-        image = PhotoImage(file='logo.png')
-        Label(self.window,image=image, bg='white').place(x=x+60, y=y-210)
+def MainForm():
+    global window, font, data, image
+    global townCb, cityCb, searchE
 
-        self.cityCb = tkinter.ttk.Combobox(self.window, width=15, value=self.data["CITY"], font=self.f)
-        self.cityCb.set("시/도 선택")
-        self.cityCb.place(x=x,y=y)
+    x, y = 110, 220
+    json_data = open("listBox.json", "r", encoding='UTF8').read()
+    data = json.loads(json_data)
 
-        self.townCb = tkinter.ttk.Combobox(self.window, width=15, value=self.data[self.cityCb.get()], postcommand=self.changeTownCb, font= self.f)
-        self.townCb.set("시/구/군 선택")
-        self.townCb.place(x=x + 200,y=y)
+    Label(window, image=image, bg='white').place(x=x + 60, y=y - 210)
 
-        Label(self.window, text="병원명", font=self.font, background='white').place(x=x + 20, y=y+50)
-        self.searchE = Entry(self.window, width=20, font=self.font)
-        self.searchE.place(x=x+80, y=y+50)
-        self.searchB = Button(self.window, text="검색", font=self.font, command=self.search, bg='white')
-        self.searchB.place(x=x+290,y=y+50)
+    cityCb = tkinter.ttk.Combobox(window, width=15, value=data["CITY"], font=font)
+    cityCb.set("시/도 선택")
+    cityCb.place(x=x, y=y)
 
-        self.window.mainloop()
+    townCb = tkinter.ttk.Combobox(window, width=15, value=data[cityCb.get()], postcommand=changeTownCb, font=font)
+    townCb.set("시/구/군 선택")
+    townCb.place(x=x + 200, y=y)
 
-    def changeTownCb(self):
-        self.townCb.configure(value=self.data[self.cityCb.get()])
+    Label(window, text="병원명", font=font, background='white').place(x=x + 20, y=y + 50)
+    searchE = Entry(window, width=20, font=font)
+    searchE.place(x=x + 80, y=y + 50)
+    searchB = Button(window, text="검색", font=font, command=search, bg='white')
+    searchB.place(x=x + 290, y=y + 50)
 
-    def search(self):
-        self.dataForm = Toplevel(self.window)
-        self.dataForm.title("전국 응급 의료기관 정보")
-        self.dataForm.resizable(False, False)
-        self.dataForm.configure(background='white')
-        self.dataForm.geometry("600x400+200+200")
+def changeTownCb():
+    global data
+    global townCb, cityCb
+    townCb.configure(value=data[cityCb.get()])
 
-        x, y = 50, 100
-        self.hosLst = Listbox(self.dataForm, width=30, font=self.font)
+def search():
+    if townCb.get() == "시/구/군 선택":
+            tkinter.messagebox.showinfo(message="다시 입력해주세요")
+    else:
+         SubForm()
 
-        ret = openAPIconnect.getHospitalListFromData(self.cityCb.get(), self.townCb.get())
+def SubForm():
+    global data,window, dataForm, font, info_text, frames
 
-        i = 0
-        for name in ret:
-            self.hosLst.insert(i, name)
-            i += 1
-        self.hosLst.place(x=x, y=y)
+    dataForm = Toplevel(window)
+    dataForm.title("전국 응급 의료기관 정보")
+    dataForm.resizable(False, False)
+    dataForm.configure(background='white')
+    dataForm.geometry("600x400+200+200")
+
+    frames = []
+
+    frames.append(Frame(dataForm, width=600, height=400, bg='white'))
+    frames[0].grid(row=0, column=0)
+
+    text_frame = Frame(frames[0])
+    text_frame.place(x=50,y=70)
+
+    info_scroll = Scrollbar(text_frame)
+    info_scroll.pack(side="right", fill="y")
+
+    info_text = Text(text_frame, width=53, height=15, font=info_font, yscrollcommand=info_scroll.set)
+    info_text.pack()
+    Button(frames[0], text="뒤로", font=font, command=lambda : frames[1].tkraise()).place(x=50,y=30)
+
+    frames.append(Frame(dataForm, width=600, height=400, bg='white'))
+    frames[1].grid(row=0, column=0)
+    Button(frames[1], text="상세정보", font=font, command=infoHospital, bg='white').place(x=150,y=60)
+    Button(frames[1], text="지도", font=font, command=mapHospital, bg='white').place(x=225,y=60)
+    hospitalList()
+
+def mapHospital():
+    pass
+
+def hospitalList():
+    global townCb, cityCb, searchE, hosLst, hospital_List, frames
+    x, y = 150, 100
+    hosLst = Listbox(frames[1], width=30, font=font)
+    hospital_List = openAPIconnect.getHospitalListFromData(cityCb.get(), townCb.get(), searchE.get())
+
+    i = 0
+    for name in hospital_List.keys():
+        hosLst.insert(i, name)
+        i += 1
+    hosLst.place(x=x,y=y)
 
 
+def infoHospital():
+    global hosLst, hospital_List, info_text,frames
+    try:
+        select = hosLst.get(hosLst.curselection())
+    except:
+        tkinter.messagebox.showinfo(message="병원을 선택해주세요")
+    info_hospital = openAPIconnect.getHospitalInfo(hospital_List[select])
+
+    frames[0].tkraise()
+    info_text.configure(state='normal')
+    info_text.delete(1.0, END)
+    info_text.update()
+    for key in info_hospital.keys():
+        info_text.insert("current", key + " : " + info_hospital[key] + "\n")
+    info_text.configure(state='disabled')
 
 MainForm()
+window.mainloop()
+
+
