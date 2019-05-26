@@ -33,9 +33,37 @@ def extraHospitalInfo(strXml):
         else:
             hospData['입원실가용여부'] = "입원 불가능"
         hospData['진료과목'] = item.find("dgidIdName").text
-
-
     return hospData
+
+def extraHospitalMessage(strXml):
+    hospMessage = {}
+    tree = ElementTree.fromstring(strXml)
+    ElementLst = tree.findall("body/items/item")
+    for item in ElementLst:
+        try:
+            hospMessage['메세지'] = item.find("symBlkMsg").text
+        except:
+            hospMessage['메세지'] = "없음"
+    if len(hospMessage) < 1:
+        hospMessage['메세지'] = "없음"
+    return hospMessage
+
+def extraHospitalBed(strXml):
+    global id
+    hospBed = {}
+    tree = ElementTree.fromstring(strXml)
+    ElementLst = tree.findall("body/items/item")
+    for item in ElementLst:
+        if id == item.find("hpid").text:
+            try:
+                hospBed["입력일시"] = item.find("hvidate").text
+            except:
+                hospBed["입력일시"] = "없음"
+            try:
+                hospBed["응급실"] = item.find("hvec").text
+            except:
+                hospBed["응급실"] = "정보 없음"
+    return hospBed
 
 def userURIBuilder(url, **user):
     str = url + "?"
@@ -70,6 +98,28 @@ def getHospitalInfo(ID):
     url = userURIBuilder(url_s, serviceKey=api_key, HPID=ID)
     return openAPI(url, 2)
 
+def getHospitalMessage(ID):
+    global server
+    url_s = server + "/getEmrrmSrsillDissMsgInqire"
+    url = userURIBuilder(url_s, serviceKey=api_key, HPID=ID)
+    return openAPI(url, 3)
+
+def getHospitalBed(ID, city, town):
+    global server, id
+    id = ID
+    if city != "":
+        city_url = urllib.parse.quote(city)
+    else:
+        city_url = ""
+    if town != "":
+        town_url = urllib.parse.quote(town)
+    else:
+        town_url = ""
+
+    url_s = server + "/getEmrrmRltmUsefulSckbdInfoInqire"
+    url = userURIBuilder(url_s, serviceKey=api_key, STAGE1=city_url, STAGE2=town_url)
+    return openAPI(url, 4)
+
 def openAPI(url, mode):
     req, resp = None, None
     req = urllib.request.Request(url)
@@ -81,6 +131,10 @@ def openAPI(url, mode):
             return extraHospitalData(resp_body.decode('utf-8'))
         elif mode == 2:
             return extraHospitalInfo(resp_body.decode('utf-8'))
+        elif mode == 3:
+            return extraHospitalMessage(resp_body.decode('utf-8'))
+        elif mode == 4:
+            return extraHospitalBed(resp_body.decode('utf-8'))
     else:
         print("Error Code : " + rescode)
 
