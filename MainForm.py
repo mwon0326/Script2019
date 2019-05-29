@@ -7,6 +7,7 @@ import json
 import tkinter.ttk
 import openAPIconnect
 import tkinter.messagebox
+import openMap
 
 FONT = "스웨거 TTF"
 
@@ -20,6 +21,10 @@ FONT= '스웨거 TTF'
 font = tkinter.font.Font(family=FONT, size=18)
 info_font = tkinter.font.Font(family='KBIZ한마음명조 R', size=12)
 image = PhotoImage(file="logo.png")
+
+info_hospital = {}
+LISTNUM = 1
+INFONUM = 0
 
 def MainForm():
     global window, font, data, image
@@ -57,7 +62,7 @@ def search():
          SubForm()
 
 def SubForm():
-    global data,window, dataForm, font, info_text, frames, hospital_List
+    global data,window, dataForm, font, info_text, frames, hospital_List, mapLB
 
     hospital_List = openAPIconnect.getHospitalListFromData(cityCb.get(), townCb.get(), searchE.get())
     if '검색결과 없음' in hospital_List:
@@ -74,7 +79,10 @@ def SubForm():
         frames.append(Frame(dataForm, width=600, height=400, bg='white'))
         frames[0].grid(row=0, column=0)
 
-        text_frame = Frame(frames[0])
+        frames.append(Frame(dataForm, width=600, height=400, bg='white'))
+        frames[1].grid(row=0, column=0)
+
+        text_frame = Frame(frames[INFONUM])
         text_frame.place(x=50,y=70)
 
         info_scroll = Scrollbar(text_frame)
@@ -82,21 +90,26 @@ def SubForm():
 
         info_text = Text(text_frame, width=53, height=15, font=info_font, yscrollcommand=info_scroll.set)
         info_text.pack()
-        Button(frames[0], text="뒤로", font=font, command=lambda : frames[1].tkraise()).place(x=50,y=30)
+        Button(frames[INFONUM], text="뒤로", font=font, command=lambda : frames[LISTNUM].tkraise()).place(x=50,y=30)
 
-        frames.append(Frame(dataForm, width=600, height=400, bg='white'))
-        frames[1].grid(row=0, column=0)
-        Button(frames[1], text="상세정보", font=font, command=infoHospital, bg='white').place(x=150,y=60)
-        Button(frames[1], text="지도", font=font, command=mapHospital, bg='white').place(x=225,y=60)
+        Button(frames[LISTNUM], text="상세정보", font=font, command=infoHospital, bg='white').place(x=150,y=60)
+        Button(frames[LISTNUM], text="지도", font=font, command=mapHospital, bg='white').place(x=225,y=60)
+
         hospitalList()
 
 def mapHospital():
-    pass
+    global info_hospital, frames, select, mapLB
+    try:
+        select = hosLst.get(hosLst.curselection())
+    except:
+        tkinter.messagebox.showinfo(message="병원을 선택해주세요")
+    info_hospital = openAPIconnect.getHospitalInfo(hospital_List[select])
+    openMap.saveMap(eval(info_hospital['위도']), eval(info_hospital['경도']), select)
 
 def hospitalList():
     global townCb, cityCb, searchE, hosLst, hospital_List, frames
     x, y = 150, 100
-    lstFrame = Frame(frames[1])
+    lstFrame = Frame(frames[LISTNUM])
     lstFrame.place(x=x,y=y)
 
     lstScroll = Scrollbar(lstFrame)
@@ -110,9 +123,8 @@ def hospitalList():
         i += 1
     hosLst.pack()
 
-
 def infoHospital():
-    global hosLst, hospital_List, info_text,frames, townCb, cityCb
+    global hosLst, hospital_List, info_text,frames, townCb, cityCb, info_hospital, select
     try:
         select = hosLst.get(hosLst.curselection())
     except:
@@ -121,7 +133,7 @@ def infoHospital():
     message_hospital = openAPIconnect.getHospitalMessage(hospital_List[select])
     bed_hospital = openAPIconnect.getHospitalBed(hospital_List[select], cityCb.get(), townCb.get())
 
-    frames[0].tkraise()
+    frames[INFONUM].tkraise()
     info_text.configure(state='normal')
     info_text.delete(1.0, END)
     info_text.update()

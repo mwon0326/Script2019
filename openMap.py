@@ -1,11 +1,19 @@
-import http.client
+import folium
+import os
+from selenium import webdriver
+import PIL.Image
 
-server = 'dapi.kakao.com'
-key = '5f6281e1df82664b7985e8d65d2c46f5'
-header = {'Authorization': 'KakaoAK '+key}
+def saveMap(r, c, name):
+    map_osm = folium.Map(location=[r, c], zoom_start=15)
+    folium.Marker([r, c], popup=name).add_to(map_osm)
+    map_osm.save('osm.html')
 
-def mapOpen():
-    conn = http.client.HTTPSConnection(server)
-    conn.request("GET", "/v2/local/geo/coord2regioncode.xml?x=127.1086228&y=37.4012191")
-    req = conn.getresponse()
+    fn = 'osm.html'
+    tmpurl = 'file://{path}/{mapfile}'.format(path=os.getcwd(), mapfile=fn)
+    browser = webdriver.Chrome('chromedriver.exe')
+    browser.get(tmpurl)
+    browser.save_screenshot('map.png')
+
+
+
 

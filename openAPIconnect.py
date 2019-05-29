@@ -33,6 +33,8 @@ def extraHospitalInfo(strXml):
         else:
             hospData['입원실가용여부'] = "입원 불가능"
         hospData['진료과목'] = item.find("dgidIdName").text
+        hospData['경도'] = item.find("wgs84Lon").text
+        hospData['위도'] = item.find("wgs84Lat").text
     return hospData
 
 def extraHospitalMessage(strXml):
