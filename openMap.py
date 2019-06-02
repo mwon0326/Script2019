@@ -12,7 +12,7 @@ def saveMap(r, c, name):
     tmpurl = 'file://{path}/{mapfile}'.format(path=os.getcwd(), mapfile=fn)
     browser = webdriver.Chrome('chromedriver.exe')
     browser.get(tmpurl)
-    browser.save_screenshot('map.png')
+    browser.save_screenshot(name + '.png')
 
 
 
