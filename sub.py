@@ -5,9 +5,11 @@ from tkinter import *
 import tkinter.font
 import tkinter.ttk
 import tkinter.messagebox
+from PIL import Image,ImageTk
 import openAPIconnect
 import openMap
 import Mail
+import openImage
 
 LISTNUM = 2
 INFONUM = 1
@@ -56,8 +58,8 @@ class SubForm:
         Button(self.frames[LISTNUM], text="메일", font=self.font, command=self.changeMailFrame,
                bg='white').place(x=270, y=60)
 
-    def mailHospital(self):
-        mx, my = 100, 100
+    def mailHospital(self): # 병원 정보 메일 프레임 생성
+        mx, my = 130, 250
         Button(self.frames[MailNUM], text="뒤로", font=self.font,
                command=lambda : self.frames[LISTNUM].tkraise()).place(x=50, y=30)
         Label(self.frames[MailNUM], text="받는 메일 주소 : ", font=self.font, bg='white').place(x=mx, y=my)
@@ -76,6 +78,7 @@ class SubForm:
     def sendMail(self):
         Mail.sendMail(self.mailE.get(), self.mail, self.mail_name, self.mapCheck.get(),
                       self.r, self.c)
+        tkinter.messagebox.showinfo(message="보내기 완료")
 
     def changeMailFrame(self):
         try:
@@ -93,7 +96,7 @@ class SubForm:
         info_scroll = Scrollbar(text_frame)
         info_scroll.pack(side="right", fill="y")
 
-        self.info_text = Text(text_frame, width=53, height=15, font=info_font, yscrollcommand=info_scroll.set)
+        self.info_text = Text(text_frame, width=25, height=15, font=info_font, yscrollcommand=info_scroll.set)
         self.info_text.pack()
         Button(self.frames[INFONUM], text="뒤로", font=self.font,
                command=lambda: self.frames[LISTNUM].tkraise(), bg='white').place(x=50,y=30)
@@ -122,6 +125,14 @@ class SubForm:
             self.info_text.insert("current", "입력일시 : " + bed_hospital['입력일시'] + "\n")
             self.info_text.insert("current", "응급실 가용병상 : " + bed_hospital['응급실'] + "\n")
             self.info_text.configure(state='disabled')
+
+            if select == "의료법인명지의료재단명지병원" and self.city_name != "서울특별시":
+                select += "1"
+            image1 = openImage.openImage(select)
+            image2 = image1.resize((280,200), Image.ANTIALIAS)
+            self.hospital_image = ImageTk.PhotoImage(image2)
+            Label(self.frames[INFONUM], width=200, height=280, image=self.hospital_image, bg='white').place(x=350, y= 70)
+
         elif mode == 2:
             self.r, self.c = eval(info_hospital['위도']), eval(info_hospital['경도'])
             self.mail = ""

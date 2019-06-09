@@ -22,7 +22,7 @@ class MainForm:
         self.font = tkinter.font.Font(family='스웨거 TTF', size=18)
         self.openJson()
 
-        Label(self.window, image=self.image, bg='white').place(x=self.x + 60, y=self.y - 210)
+        Label(self.window, image=self.image, bg='white').place(x=self.x, y=self.y - 100)
 
         self.cityCb = tkinter.ttk.Combobox(self.window, width=15, value=self.city_data["CITY"], font=self.font)
         self.cityCb.set("시/도 선택")
@@ -45,7 +45,7 @@ class MainForm:
         self.townCb.configure(value=self.city_data[self.cityCb.get()])
 
     def searchHospital(self):
-        if self.townCb.get() == "시/구/군 선택":
+        if self.townCb.get() == "시/구/군 선택" and self.cityCb.get() != "세종특별자치시":
             tkinter.messagebox.showinfo(message="다시 입력해주세요")
         else:
             cityName = self.cityCb.get()
