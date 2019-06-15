@@ -67,6 +67,21 @@ def extraHospitalBed(strXml):
                 hospBed["응급실"] = "정보 없음"
     return hospBed
 
+def extraHospitalOper(strXml):
+    hospLst = {}
+    tree = ElementTree.fromstring(strXml)
+    ElementLst = tree.findall("body/items/item")
+    for item in ElementLst:
+        name = item.find("dutyName").text
+        operLst = []
+        for i in range(1, 12):
+            id = "MKioskTy" + str(i)
+            operLst.append(item.find(id).text)
+        hospLst[name] = operLst
+    if len(hospLst) <= 0:
+        hospLst["검색결과 없음"] = ""
+    return hospLst
+
 def userURIBuilder(url, **user):
     str = url + "?"
     for key in user.keys():
@@ -99,6 +114,14 @@ def getHospitalInfo(ID):
     url_s = server + "/getEgytBassInfoInqire"
     url = userURIBuilder(url_s, serviceKey=api_key, HPID=ID)
     return openAPI(url, 2)
+
+def getHospitalOper(city, town):
+    global server
+    url_s = server + "/getSrsillDissAceptncPosblInfoInqire"
+    city_url = urllib.parse.quote(city)
+    town_url = urllib.parse.quote(town)
+    url = userURIBuilder(url_s, serviceKey=api_key, STAGE1=city_url, STAGE2=town_url)
+    return openAPI(url, 5)
 
 def getHospitalMessage(ID):
     global server
@@ -137,6 +160,8 @@ def openAPI(url, mode):
             return extraHospitalMessage(resp_body.decode('utf-8'))
         elif mode == 4:
             return extraHospitalBed(resp_body.decode('utf-8'))
+        elif mode == 5:
+            return extraHospitalOper(resp_body.decode('utf-8'))
     else:
         print("Error Code : " + rescode)
 

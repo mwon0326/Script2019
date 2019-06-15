@@ -96,7 +96,7 @@ class SubForm:
         info_scroll = Scrollbar(text_frame)
         info_scroll.pack(side="right", fill="y")
 
-        self.info_text = Text(text_frame, width=25, height=15, font=info_font, yscrollcommand=info_scroll.set)
+        self.info_text = Text(text_frame, width=28, height=15, font=info_font, yscrollcommand=info_scroll.set)
         self.info_text.pack()
         Button(self.frames[INFONUM], text="뒤로", font=self.font,
                command=lambda: self.frames[LISTNUM].tkraise(), bg='white').place(x=50,y=30)
@@ -119,7 +119,8 @@ class SubForm:
             self.info_text.delete(1.0, END)
             self.info_text.update()
             for key in info_hospital.keys():
-                self.info_text.insert("current", key + " : " + info_hospital[key] + "\n")
+                if key != "경도" and key != "위도":
+                    self.info_text.insert("current", key + " : " + info_hospital[key] + "\n")
             self.info_text.insert("current", "병원 메세지 : " + message_hospital['메세지'] + "\n")
             self.info_text.insert("current", "-------------------------------------------\n")
             self.info_text.insert("current", "입력일시 : " + bed_hospital['입력일시'] + "\n")
@@ -137,7 +138,7 @@ class SubForm:
             self.r, self.c = eval(info_hospital['위도']), eval(info_hospital['경도'])
             self.mail = ""
             for key in info_hospital.keys():
-                if key != "경도" or key != "위도":
+                if key != "경도" and key != "위도":
                     self.mail += "[{0}] : {1}\n".format(key, info_hospital[key])
             self.mail += "[{0}] : {1}\n".format('병원 메세지', message_hospital['메세지'])
             self.mail += "[{0}] : {1}\n".format('입력일시', bed_hospital['입력일시'])

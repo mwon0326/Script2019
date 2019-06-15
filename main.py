@@ -7,6 +7,11 @@ import json
 import tkinter.ttk
 import tkinter.messagebox
 import sub
+import threading
+import telepot
+import teller
+import noti
+import time
 
 class MainForm:
     def __init__(self):
@@ -57,6 +62,13 @@ class MainForm:
         json_data = open("listBox.json", "r", encoding='UTF8').read()
         self.city_data = json.loads(json_data)
 
+def loopTel():
+    bot = telepot.Bot(noti.token)
+    bot.message_loop(teller.handle)
+    while 1:
+        time.sleep(10)
 
-
+t1 = threading.Thread(target=loopTel)
+t1.daemon = True
+t1.start()
 MainForm()
