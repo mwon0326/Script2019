@@ -4,7 +4,7 @@ import sys
 import urllib.request
 from xml.dom.minidom import parseString
 from xml.etree import ElementTree
-
+import spam
 api_key = "RLDjSffZH9LGQNjQ9yvsyG4MmZmNtICxy1DWeO0pa85GfcANW71FTq5UumHdT%2F70HdjQKkm5DieR816U2FXQyw%3D%3D"
 server = "http://apis.data.go.kr/B552657/ErmctInfoInqireService"
 
@@ -111,13 +111,15 @@ def getHospitalListFromData(city, town, name):
 
 def getHospitalInfo(ID):
     global server
-    url_s = server + "/getEgytBassInfoInqire"
+    url_s = spam.makeURL(server, "/getEgytBassInfoInqire")
+    #url_s = server + "/getEgytBassInfoInqire"
     url = userURIBuilder(url_s, serviceKey=api_key, HPID=ID)
     return openAPI(url, 2)
 
 def getHospitalOper(city, town):
     global server
-    url_s = server + "/getSrsillDissAceptncPosblInfoInqire"
+    url_s = spam.makeURL(server, "/getSrsillDissAceptncPosblInfoInqire")
+    #url_s = server + "/getSrsillDissAceptncPosblInfoInqire"
     city_url = urllib.parse.quote(city)
     town_url = urllib.parse.quote(town)
     url = userURIBuilder(url_s, serviceKey=api_key, STAGE1=city_url, STAGE2=town_url)

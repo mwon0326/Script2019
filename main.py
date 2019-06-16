@@ -68,6 +68,7 @@ def loopTel():
     while 1:
         time.sleep(10)
 
+##### run #####
 t1 = threading.Thread(target=loopTel)
 t1.daemon = True
 t1.start()
