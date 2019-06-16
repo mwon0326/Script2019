@@ -111,14 +111,13 @@ def getHospitalListFromData(city, town, name):
 
 def getHospitalInfo(ID):
     global server
-    url_s = spam.makeURL(server, "/getEgytBassInfoInqire")
-    #url_s = server + "/getEgytBassInfoInqire"
+    url_s = server + "/getEgytBassInfoInqire"
     url = userURIBuilder(url_s, serviceKey=api_key, HPID=ID)
     return openAPI(url, 2)
 
 def getHospitalOper(city, town):
     global server
-    url_s = spam.makeURL(server, "/getSrsillDissAceptncPosblInfoInqire")
+    url_s = spam.makeURL(server, "/getSrsillDissAceptncPosblInfoInqire")[0]
     #url_s = server + "/getSrsillDissAceptncPosblInfoInqire"
     city_url = urllib.parse.quote(city)
     town_url = urllib.parse.quote(town)
