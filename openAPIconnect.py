@@ -117,7 +117,8 @@ def getHospitalInfo(ID):
 
 def getHospitalOper(city, town):
     global server
-    url_s = spam.makeURL(server, "/getSrsillDissAceptncPosblInfoInqire")[0]
+    url_s = spam.makeURL(server, "/getSrsillDissAceptncPosblInfoInqire")
+    # spam.makeURL이 될 때도 있고 에러가 발생할 때도 있습니다. 에러가 발생하면 밑에 걸로 써주세요
     #url_s = server + "/getSrsillDissAceptncPosblInfoInqire"
     city_url = urllib.parse.quote(city)
     town_url = urllib.parse.quote(town)
